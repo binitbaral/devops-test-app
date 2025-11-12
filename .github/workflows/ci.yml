@@ -1,0 +1,38 @@
+name: CI - DevOps Test App
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Step 3: Build Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t devops-test-app .
+
+      # Step 4: Run container
+      - name: Run container
+        run: |
+          docker run -d -p 3000:3000 --name nodeapp devops-test-app
+          sleep 5  # wait for container to start
+
+      # Step 5: Test with curl
+      - name: Test endpoint
+        run: |
+          curl --fail http://localhost:3000
+          echo "Build and Test passed"
+
